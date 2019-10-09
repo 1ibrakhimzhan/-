@@ -1,0 +1,25 @@
+pip install -U scikit-fuzzy
+import numpy as np
+import skfuzzy as fuzz
+from skfuzzy import control as ctrl
+quality = ctrl.Antecedent(np.arange(0, 12, 1), 'quality')
+service = ctrl.Antecedent(np.arange(0, 12, 1), 'service')
+tip = ctrl.Consequent(np.arange(0, 27, 1), 'tip')
+quality.automf(3)
+service.automf(3)
+tip['low'] = fuzz.trimf(tip.universe, [0, 0, 14])
+tip['medium'] = fuzz.trimf(tip.universe, [0, 14, 26])
+tip['high'] = fuzz.trimf(tip.universe, [14, 26, 26]
+quality['average'].view()
+tip.view()
+rule1=ctrl.Rule(quality['poor'] | service['poor'], tip['low'])
+rule2=ctrl.Rule(service['average'], tip['medium'])
+rule3=ctrl.Rule(service['good'] | quality['good'], tip['high'])
+rule1.view()
+tipping_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
+tipping = ctrl.ControlSystemSimulation(tipping_ctrl)
+tipping.input['quality'] = 2
+tipping.input['service'] = 3
+tipping.compute()
+print(tipping.output['tip'])
+tip.view(sim=tipping)
